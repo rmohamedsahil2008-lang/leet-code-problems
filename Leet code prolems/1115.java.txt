@@ -1,0 +1,39 @@
+class FooBar {
+    private int n;
+    private final Semaphore fooSema;
+    private final Semaphore barSema;
+
+    public FooBar(int n) {
+        this.n = n;
+        // Start with fooSema having 1 permit so foo() can run first
+        this.fooSema = new Semaphore(1);
+        // Start with barSema having 0 permits so bar() must wait for foo()
+        this.barSema = new Semaphore(0);
+    }
+
+    public void foo(Runnable printFoo) throws InterruptedException {
+        for (int i = 0; i < n; i++) {
+            // Acquire a permit to print "foo" (initially succeeds)
+            fooSema.acquire();
+            
+            // printFoo.run() outputs "foo". Do not change or remove this line.
+            printFoo.run();
+            
+            // Release a permit to let bar() print "bar"
+            barSema.release();
+        }
+    }
+
+    public void bar(Runnable printBar) throws InterruptedException {
+        for (int i = 0; i < n; i++) {
+            // Wait until foo() releases the permit
+            barSema.acquire();
+            
+            // printBar.run() outputs "bar". Do not change or remove this line.
+            printBar.run();
+            
+            // Release a permit to let foo() print the next "foo"
+            fooSema.release();
+        }
+    }
+}
